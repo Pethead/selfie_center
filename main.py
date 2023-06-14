@@ -19,9 +19,14 @@ def center_images(image_files, input_folder, output_folder):
 
         # Detect faces in the image
         faces = dlib.get_frontal_face_detector()(gray)
+
         # Take first face only as the first detected face is
         #  most likely the person who is taking the selfie
-        face = faces[0]
+        if (1 == len(faces)):
+            face = faces[0]
+        else:
+            # TODO: if zero or multiple faces, write filename to stderr so it can be analyzed.
+            continue
 
         # Detect facial landmarks including the nose
         landmarks = predictor(gray, face)
