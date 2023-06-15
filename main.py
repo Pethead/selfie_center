@@ -86,7 +86,6 @@ def create_video(image_folder, fps):
 
 def main(args):
     input_folder = str(args.input)
-    image_files = []
 
     if (os.path.exists(input_folder) is True and
             os.path.isdir(input_folder) is True):
