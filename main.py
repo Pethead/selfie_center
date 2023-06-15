@@ -27,7 +27,7 @@ def center_images(image_files, input_folder, output_folder):
         if (1 == len(faces)):
             face = faces[0]
         else:
-            print(f"'{image_file}' contains '{len(faces)}' faces", file=sys.stderr)
+            print(f"'{image_file}' has '{len(faces)}' faces", file=sys.stderr)
             continue
 
         # Detect facial landmarks including the nose
@@ -43,13 +43,16 @@ def center_images(image_files, input_folder, output_folder):
         translation_matrix = np.float32([[1, 0, dx], [0, 1, dy]])
 
         # Apply the translation to center the image around the nose
-        centered_img = cv2.warpAffine(image, translation_matrix, (image.shape[1], image.shape[0]))
+        centered_img = cv2.warpAffine(image, translation_matrix,
+                                      (image.shape[1], image.shape[0]))
 
+        str(image_file).replace(input_folder + "/", "")
         # Save the centered image with a new filename in given output folder
-        centered_filename = "centered_" + str(image_file).replace(input_folder + "/", "")
+        centered_filename = "centered_" + str(image_file)
         cv2.imwrite(output_folder + "/" + centered_filename, centered_img)
 
-        print(f"{current_image}/{total_images} - './{image_file}' centered around the nose & saved as './{output_folder}/{centered_filename}'")
+        print(f"{current_image}/{total_images} - './{image_file}' \
+centered around the nose & saved as './{output_folder}/{centered_filename}'")
         current_image += 1
 
 
@@ -58,7 +61,8 @@ def create_video(image_folder, fps):
     height = 1280
     width = 1000
 
-    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
+    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"mp4v"),
+                            fps, (width, height))
 
     image_files = glob.glob(image_folder + "/*.jpg")
     total_frames = len(image_files)
@@ -79,31 +83,28 @@ def create_video(image_folder, fps):
 
     print(f"Centered video saved as ./{video_name}")
 
-    cv2.destroyAllWindows()
-    video.release()
-
 
 def main(args):
     input_folder = str(args.input)
     image_files = []
 
-    if (False == os.path.exists(input_folder)):
-        print("Input folder doesn't exist!")
-    else:
+    if (os.path.exists(input_folder) is True):
         # Get a list of all image files in the current folder
         image_files = glob.glob(input_folder + "/*.jpg")
 
         if (0 == len(image_files)):
-            print("No .jpg files found in '{input_folder}'!")
+            print("No *.jpg files found in '{input_folder}'!")
         else:
             output_folder = str(args.output)
             # Create output folder if it doesn't exist
-            if (False == os.path.isdir(output_folder)):
+            if (os.path.isdir(output_folder) is False):
                 os.mkdir(output_folder)
 
             center_images(image_files, input_folder, output_folder)
             # Create video based on all centered images
             create_video(output_folder, int(args.fps))
+    else:
+        print(f"{input_folder} folder doesn't exist!")
 
 
 if __name__ == "__main__":
@@ -112,10 +113,10 @@ if __name__ == "__main__":
                         help="Input folder that contains all the images",
                         action="store")
     parser.add_argument("-o", "--output", type=str,
-                    help="Output folder to store output in",
-                    action="store")
+                        help="Output folder to store output in",
+                        action="store")
     parser.add_argument("-fps", "--fps", type=str,
-                help="Frames per second that output video shall be generated with",
-                action="store")
+                        help="Frames per second of output video",
+                        action="store")
     args = parser.parse_args()
     main(args)
