@@ -49,6 +49,26 @@ def center_images(image_files, input_folder, output_folder):
         print(f"{current_image}/{total_images} - './{image_file}' centered around the nose & saved as './{output_folder}/{centered_filename}'")
         current_image += 1
 
+
+def create_video(image_folder):
+    video_name = "centered_video.mp4"
+
+    image_files = glob.glob(image_folder + "/*.jpg")
+
+    # Create video resolution based on height and width of first image
+    frame = cv2.imread(image_files[0])
+    height, width, layers = frame.shape
+
+    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"mp4v"), 2, (width, height))
+
+    for image in image_files:
+        frame = cv2.imread(image)
+        video.write(frame)
+
+    cv2.destroyAllWindows()
+    video.release()
+
+
 def main(args):
     input_folder = str(args.input)
     image_files = []
@@ -57,7 +77,7 @@ def main(args):
         print("Input folder doesn't exist!")
     else:
         # Get a list of all image files in the current folder
-        image_files = glob.glob(args.input + "/*.jpg") + glob.glob("/*.jpeg") + glob.glob("/*.png")
+        image_files = glob.glob(input_folder + "/*.jpg")
 
         if (0 == len(image_files)):
             print("No images found in '{input_folder}'")
@@ -66,7 +86,10 @@ def main(args):
             # Create output folder if it doesn't exist
             if (False == os.path.isdir(output_folder)):
                 os.mkdir(output_folder)
+
             center_images(image_files, input_folder, output_folder)
+            # Create video based on all centered images
+            create_video(output_folder)
 
 
 if __name__ == "__main__":
