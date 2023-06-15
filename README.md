@@ -1,6 +1,6 @@
 # Selfie Center
 
-Python script to center selfies with regards to the nose and creating a video of all the centered images as centered_video.mp4 in the current directory.
+Python script to align selfies to the center with regards to the nose and then creating a video output of all the images that were centered.
 
 ### Usage
 
