@@ -46,8 +46,8 @@ def center_images(image_files, input_folder, output_folder):
         centered_img = cv2.warpAffine(image, translation_matrix,
                                       (image.shape[1], image.shape[0]))
 
-        str(image_file).replace(input_folder + "/", "")
-        # Save the centered image with a new filename in given output folder
+        image_file = str(image_file).replace(input_folder + "/", "")
+        # Save the centered image with a new filename in given output directory
         centered_filename = "centered_" + str(image_file)
         cv2.imwrite(output_folder + "/" + centered_filename, centered_img)
 
@@ -75,7 +75,7 @@ def create_video(image_folder, fps):
 
         video.write(resized_frame)
 
-        print(f"{current_frame}/{total_frames} - {image}")
+        print(f"Frame '{current_frame}/{total_frames}' written - {image}")
         current_frame += 1
 
     cv2.destroyAllWindows()
@@ -88,32 +88,33 @@ def main(args):
     input_folder = str(args.input)
     image_files = []
 
-    if (os.path.exists(input_folder) is True):
-        # Get a list of all image files in the current folder
+    if (os.path.exists(input_folder) is True and
+         os.path.isdir(input_folder) is True):
+
         image_files = glob.glob(input_folder + "/*.jpg")
 
         if (0 == len(image_files)):
             print("No *.jpg files found in '{input_folder}'!")
         else:
-            output_folder = str(args.output)
-            # Create output folder if it doesn't exist
-            if (os.path.isdir(output_folder) is False):
-                os.mkdir(output_folder)
+            centered_images_out_dir = str(args.output)
+            # Create output directory if it doesn't exist
+            if (os.path.isdir(centered_images_out_dir) is False):
+                os.mkdir(centered_images_out_dir)
 
-            center_images(image_files, input_folder, output_folder)
+            center_images(image_files, input_folder, centered_images_out_dir)
             # Create video based on all centered images
-            create_video(output_folder, int(args.fps))
+            create_video(centered_images_out_dir, int(args.fps))
     else:
-        print(f"{input_folder} folder doesn't exist!")
+        print(f"{input_folder} directory doesn't exist!")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str,
-                        help="Input folder that contains all the images",
+                        help="Input directory containing all the images (jpg)",
                         action="store")
     parser.add_argument("-o", "--output", type=str,
-                        help="Output folder to store output in",
+                        help="Output directory to store centered images",
                         action="store")
     parser.add_argument("-fps", "--fps", type=str,
                         help="Frames per second of output video",
