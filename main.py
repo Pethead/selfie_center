@@ -57,7 +57,9 @@ def create_video(image_folder):
 
     # Create video resolution based on height and width of first image
     frame = cv2.imread(image_files[0])
-    height, width, layers = frame.shape
+    # height, width, layers = frame.shape
+    height = 1280
+    width = 1000
 
     video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"mp4v"), 1, (width, height))
 
@@ -66,7 +68,7 @@ def create_video(image_folder):
 
     for image in image_files:
         frame = cv2.imread(image)
-        video.write(frame)
+        video.write(cv2.resize(frame, (width, height)))
         print(f"{current_frame}/{total_frames} - {image}")
         current_frame += 1
 
