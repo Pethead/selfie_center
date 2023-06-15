@@ -59,11 +59,21 @@ def create_video(image_folder):
     frame = cv2.imread(image_files[0])
     height, width, layers = frame.shape
 
-    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"mp4v"), 2, (width, height))
+    video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*"mp4v"), 1, (width, height))
+
+    total_frames = len(image_files)
+    current_frame = 1
 
     for image in image_files:
         frame = cv2.imread(image)
         video.write(frame)
+        print(f"{current_frame}/{total_frames} - {image}")
+        current_frame += 1
+
+    cv2.destroyAllWindows()
+    video.release()
+
+    print(f"Centered video saved as ./{video_name}")
 
     cv2.destroyAllWindows()
     video.release()
