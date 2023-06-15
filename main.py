@@ -89,7 +89,7 @@ def main(args):
     image_files = []
 
     if (os.path.exists(input_folder) is True and
-         os.path.isdir(input_folder) is True):
+            os.path.isdir(input_folder) is True):
 
         image_files = glob.glob(input_folder + "/*.jpg")
 
