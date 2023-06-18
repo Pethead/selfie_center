@@ -15,7 +15,8 @@ def check_input_args(args):
 
         if (0 == len(image_files)):
             print(f"No *.jpg files found in '{args.input}'!", file=sys.stderr)
-        else: # Create output directory if it doesn't exist
+        else:
+            # Create output directory if it doesn't exist
             if (os.path.isdir(args.output) is False):
                 os.mkdir(args.output)
             return True
@@ -35,21 +36,22 @@ def center_images(image_files, input_folder, output_folder):
     for image_file in image_files:
         # Read the image file
         image = cv2.imread(image_file)
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # Convert image to grayscale in order to detect faces
+        grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Detect faces in the image
-        faces = dlib.get_frontal_face_detector()(gray)
+        # Detect faces in the grayscale image
+        faces = dlib.get_frontal_face_detector()(grayscale_image)
 
-        # Take first face only as the first detected face is
-        # most likely the person who is taking the selfie
+        # Disregard pictures with 0 or multiple faces
         if (1 == len(faces)):
             face = faces[0]
         else:
-            print(f"'{image_file}' has '{len(faces)}' faces", file=sys.stderr)
+            print(f"Disregarded: {image_file} - Detected '{len(faces)}' faces",
+                  file=sys.stderr)
             continue
 
         # Detect facial landmarks including the nose
-        landmarks = predictor(gray, face)
+        landmarks = predictor(grayscale_image, face)
         # Index 30 corresponds to the tip of the nose
         nose_landmark = landmarks.part(30)
 
@@ -69,8 +71,8 @@ def center_images(image_files, input_folder, output_folder):
         centered_filename = "centered_" + str(image_file)
         cv2.imwrite(output_folder + "/" + centered_filename, centered_img)
 
-        print(f"{current_image}/{total_images} - './{image_file}' \
-centered around the nose & saved as './{output_folder}/{centered_filename}'")
+        print(f"{current_image}/{total_images} - ./{input_folder}/{image_file}\
+ centered around the nose & saved as ./{output_folder}/{centered_filename}")
         current_image += 1
 
 
@@ -104,14 +106,10 @@ def create_video(image_folder, fps):
 
 def main(args):
     if (check_input_args(args) is True):
-        input_dir = str(args.input)
-        output_dir = str(args.output)
-        fps = int(args.fps)
+        image_files = glob.glob(args.input + "/*.jpg")
 
-        image_files = glob.glob(input_dir + "/*.jpg")
-
-        center_images(image_files, input_dir, output_dir)
-        create_video(output_dir, fps)
+        center_images(image_files, args.input, args.output)
+        create_video(args.output, args.fps)
 
 
 if __name__ == "__main__":
@@ -122,7 +120,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", type=str,
                         help="Output directory to store centered images",
                         action="store")
-    parser.add_argument("-fps", "--fps", type=str,
+    parser.add_argument("-fps", "--fps", type=int,
                         help="Frames per second of output video",
                         action="store")
     args = parser.parse_args()

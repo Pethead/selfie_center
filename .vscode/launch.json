@@ -6,7 +6,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "args": ["--input", "input", "--output", "output", "-fps", "1"]
+            "args": ["--i", "input", "-o", "output", "-fps", "1"]
         }
     ]
 }
