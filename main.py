@@ -7,6 +7,24 @@ import cv2
 import numpy as np
 
 
+def check_input_args(args):
+    if (os.path.exists(args.input) is True and
+            os.path.isdir(args.input) is True):
+
+        image_files = glob.glob(args.input + "/*.jpg")
+
+        if (0 == len(image_files)):
+            print(f"No *.jpg files found in '{args.input}'!", file=sys.stderr)
+        else: # Create output directory if it doesn't exist
+            if (os.path.isdir(args.output) is False):
+                os.mkdir(args.output)
+            return True
+    else:
+        print(f"{args.input} directory doesn't exist!", file=sys.stderr)
+
+    return False
+
+
 def center_images(image_files, input_folder, output_folder):
     # Load the pre-trained shape predictor model
     predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -85,26 +103,15 @@ def create_video(image_folder, fps):
 
 
 def main(args):
-    input_folder = str(args.input)
+    if (check_input_args(args) is True):
+        input_dir = str(args.input)
+        output_dir = str(args.output)
+        fps = int(args.fps)
 
-    if (os.path.exists(input_folder) is True and
-            os.path.isdir(input_folder) is True):
+        image_files = glob.glob(input_dir + "/*.jpg")
 
-        image_files = glob.glob(input_folder + "/*.jpg")
-
-        if (0 == len(image_files)):
-            print("No *.jpg files found in '{input_folder}'!")
-        else:
-            centered_images_out_dir = str(args.output)
-            # Create output directory if it doesn't exist
-            if (os.path.isdir(centered_images_out_dir) is False):
-                os.mkdir(centered_images_out_dir)
-
-            center_images(image_files, input_folder, centered_images_out_dir)
-            # Create video based on all centered images
-            create_video(centered_images_out_dir, int(args.fps))
-    else:
-        print(f"{input_folder} directory doesn't exist!")
+        center_images(image_files, input_dir, output_dir)
+        create_video(output_dir, fps)
 
 
 if __name__ == "__main__":
